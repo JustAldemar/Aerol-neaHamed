@@ -1,0 +1,362 @@
+package com.mycompany.aeropuertohamed1;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class AeropuertoHamed1 {
+    private static Scanner scanner = new Scanner(System.in);
+    private static ArrayList<Aerolinea> aerolineas = new ArrayList<>();
+
+    public static void main(String[] args) {
+        inicializarAerolineas();
+        int opcion;
+        do {
+            mostrarMenu();
+            opcion = scanner.nextInt();
+            switch (opcion) {
+                case 1:
+                    consultarVuelos();
+                    break;
+                case 2:
+                    hacerReserva();
+                    break;
+                case 3:
+                    modificarReserva();
+                    break;
+                case 4:
+                    eliminarReserva();
+                    break;
+                case 5:
+                    imprimirRecibo();
+                    break;
+                case 6:
+                    System.out.println("Gracias por usar nuestro sistema. ¡Hasta luego!");
+                    return;
+                default:
+                    System.out.println("Opción no válida. Intente de nuevo.");
+                    break;
+            }
+        } while (true);
+    }
+
+    private static void mostrarMenu() {
+        System.out.println("Bienvenido al Sistema de Aerolíneas");
+        System.out.println("1. Consultar vuelos disponibles");
+        System.out.println("2. Hacer reserva de vuelo");
+        System.out.println("3. Modificar reserva");
+        System.out.println("4. Eliminar reserva");
+        System.out.println("5. Imprimir recibo");
+        System.out.println("6. Salir");
+        System.out.print("Seleccione una opción: ");
+    }
+
+    private static void consultarVuelos() {
+        for (Aerolinea aerolinea : aerolineas) {
+            aerolinea.mostrarVuelos();
+        }
+    }
+
+    private static void hacerReserva() {
+        System.out.println("Seleccione una aerolínea: ");
+        for (int i = 0; i < aerolineas.size(); i++) {
+            System.out.println((i + 1) + ". " + aerolineas.get(i).getNombre());
+        }
+        int opcionAerolinea = scanner.nextInt();
+        Aerolinea aerolineaSeleccionada = aerolineas.get(opcionAerolinea - 1);
+
+        aerolineaSeleccionada.mostrarVuelos();
+        System.out.println("Seleccione un vuelo por su número: ");
+        int numeroVuelo = scanner.nextInt();
+        Vuelo vueloSeleccionado = aerolineaSeleccionada.getVuelos().get(numeroVuelo - 1);
+
+        vueloSeleccionado.mostrarAsientos();
+        System.out.println("Seleccione un asiento (fila columna): ");
+        int fila = scanner.nextInt();
+        int columna = scanner.nextInt();
+
+        char[][] asientos = vueloSeleccionado.getAsientos();
+        if (asientos[fila - 1][columna - 1] == 'O') {
+            scanner.nextLine();
+            System.out.println("Ingrese su nombre: ");
+            String nombre = scanner.nextLine();
+            System.out.println("Ingrese su nacionalidad: ");
+            String nacionalidad = scanner.nextLine();
+            System.out.println("Ingrese su edad: ");
+            int edad = scanner.nextInt();
+            System.out.println("Ingrese su número de identificación: ");
+            String numeroIdentificacion = scanner.next();
+
+            scanner.nextLine();
+            System.out.println("Seleccione la clase (Ejecutiva, Económica, Regular): ");
+            String clase = scanner.nextLine();
+            System.out.println("Ingrese la hora de salida (en formato HH:MM): ");
+            String horaSalida = scanner.nextLine();
+
+            Reserva reserva = new Reserva(nombre, nacionalidad, edad, numeroIdentificacion, vueloSeleccionado,
+                    clase, fila + " " + columna, horaSalida);
+            aerolineaSeleccionada.agregarReserva(reserva);
+
+            asientos[fila - 1][columna - 1] = 'X';
+
+            System.out.println("¡Reserva realizada con éxito!");
+        } else {
+            System.out.println("El asiento seleccionado está ocupado. Por favor, elija otro asiento.");
+        }
+    }
+
+    private static void modificarReserva() {
+        scanner.nextLine();
+        System.out.println("Ingrese el número de identificación de la reserva a modificar:");
+        String numeroIdentificacion = scanner.nextLine();
+
+        boolean reservaEncontrada = false;
+        for (Aerolinea aerolinea : aerolineas) {
+            Reserva reserva = aerolinea.buscarReserva(numeroIdentificacion);
+            if (reserva != null) {
+                aerolinea.mostrarReserva(reserva);
+
+                System.out.println("Ingrese el nuevo nombre:");
+                String nuevoNombre = scanner.nextLine();
+                System.out.println("Ingrese la nueva nacionalidad:");
+                String nuevaNacionalidad = scanner.nextLine();
+                System.out.println("Ingrese la nueva edad:");
+                int nuevaEdad = scanner.nextInt();
+                scanner.nextLine();
+                System.out.println("Ingrese la nueva clase (Ejecutiva, Económica, Regular):");
+                String nuevaClase = scanner.nextLine();
+                System.out.println("Ingrese la nueva hora de salida (en formato HH:MM):");
+                String nuevaHoraSalida = scanner.nextLine();
+
+                reserva.setNombre(nuevoNombre);
+                reserva.setNacionalidad(nuevaNacionalidad);
+                reserva.setEdad(nuevaEdad);
+                reserva.setClase(nuevaClase);
+                reserva.setHoraSalida(nuevaHoraSalida);
+
+                System.out.println("¡Reserva modificada con éxito!");
+                reservaEncontrada = true;
+                break;
+            }
+        }
+
+        if (!reservaEncontrada) {
+            System.out.println("No se encontró ninguna reserva con ese número de identificación.");
+        }
+    }
+
+    private static void eliminarReserva() {
+        scanner.nextLine();
+        System.out.println("Ingrese el número de identificación de la reserva a eliminar:");
+        String numeroIdentificacion = scanner.nextLine();
+
+        boolean reservaEncontrada = false;
+        for (Aerolinea aerolinea : aerolineas) {
+            Reserva reserva = aerolinea.buscarReserva(numeroIdentificacion);
+            if (reserva != null) {
+                aerolinea.eliminarReserva(reserva);
+                System.out.println("Reserva eliminada con éxito.");
+                reservaEncontrada = true;
+                break;
+            }
+        }
+
+        if (!reservaEncontrada) {
+            System.out.println("No se encontró ninguna reserva con ese número de identificación.");
+        }
+    }
+
+    private static void imprimirRecibo() {
+        scanner.nextLine();
+        System.out.println("Ingrese el número de identificación de la reserva para imprimir el recibo:");
+        String numeroIdentificacion = scanner.nextLine();
+
+        boolean reservaEncontrada = false;
+        for (Aerolinea aerolinea : aerolineas) {
+            Reserva reserva = aerolinea.buscarReserva(numeroIdentificacion);
+            if (reserva != null) {
+                aerolinea.imprimirRecibo(reserva);
+                reservaEncontrada = true;
+                break;
+            }
+        }
+
+        if (!reservaEncontrada) {
+            System.out.println("No se encontró ninguna reserva con ese número de identificación.");
+        }
+    }
+
+    private static void inicializarAerolineas() {
+        Aerolinea americas = new Aerolinea("Américas");
+        americas.agregarVuelo(new Vuelo("USA", "Canadá", "12:00"));
+        americas.agregarVuelo(new Vuelo("Canadá", "USA", "14:00"));
+
+        Aerolinea europa = new Aerolinea("Europa");
+        europa.agregarVuelo(new Vuelo("España", "Francia", "10:00"));
+        europa.agregarVuelo(new Vuelo("Francia", "España", "16:00"));
+
+        Aerolinea caribe = new Aerolinea("Caribe");
+        caribe.agregarVuelo(new Vuelo("México", "Bahamas", "08:00"));
+        caribe.agregarVuelo(new Vuelo("Bahamas", "México", "18:00"));
+
+        aerolineas.add(americas);
+        aerolineas.add(europa);
+        aerolineas.add(caribe);
+    }
+}
+
+class Aerolinea {
+    private String nombre;
+    private ArrayList<Vuelo> vuelos = new ArrayList<>();
+    private ArrayList<Reserva> reservas = new ArrayList<>();
+
+    public Aerolinea(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public ArrayList<Vuelo> getVuelos() {
+        return vuelos;
+    }
+
+    public void agregarVuelo(Vuelo vuelo) {
+        vuelos.add(vuelo);
+    }
+
+    public void agregarReserva(Reserva reserva) {
+        reservas.add(reserva);
+    }
+
+    public Reserva buscarReserva(String numeroIdentificacion) {
+        for (Reserva reserva : reservas) {
+            if (reserva.getNumeroIdentificacion().equals(numeroIdentificacion)) {
+                return reserva;
+            }
+        }
+        return null;
+    }
+
+    public void eliminarReserva(Reserva reserva) {
+        reservas.remove(reserva);
+    }
+
+    public void mostrarVuelos() {
+        System.out.println("Aerolínea: " + nombre);
+        for (int i = 0; i < vuelos.size(); i++) {
+            System.out.println((i + 1) + ". " + vuelos.get(i));
+            vuelos.get(i).mostrarAsientos();
+        }
+    }
+
+    public void mostrarReserva(Reserva reserva) {
+        System.out.println("Reserva encontrada:");
+        System.out.println(reserva);
+    }
+
+    public void imprimirRecibo(Reserva reserva) {
+        System.out.println("Recibo:");
+        System.out.println(reserva);
+    }
+}
+
+class Vuelo {
+    private String origen;
+    private String destino;
+    private String horaSalida;
+    private char[][] asientos;
+
+    public Vuelo(String origen, String destino, String horaSalida) {
+        this.origen = origen;
+        this.destino = destino;
+        this.horaSalida = horaSalida;
+        generarAsientos();
+    }
+
+    private void generarAsientos() {
+        asientos = new char[5][5];
+        for (int i = 0; i < asientos.length; i++) {
+            for (int j = 0; j < asientos[i].length; j++) {
+                asientos[i][j] = 'O';
+            }
+        }
+        // Algunos asientos se marcan como ocupados aleatoriamente
+        for (int i = 0; i < 5; i++) {
+            int fila = (int) (Math.random() * 5);
+            int columna = (int) (Math.random() * 5);
+            asientos[fila][columna] = 'X';
+        }
+    }
+
+    public void mostrarAsientos() {
+        System.out.println("Asientos:");
+        for (int i = 0; i < asientos.length; i++) {
+            for (int j = 0; j < asientos[i].length; j++) {
+                System.out.print(asientos[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    public char[][] getAsientos() {
+        return asientos;
+    }
+
+    public String toString() {
+        return origen + " -> " + destino + " - Hora de salida: " + horaSalida;
+    }
+}
+
+class Reserva {
+    private String nombre;
+    private String nacionalidad;
+    private int edad;
+    private String numeroIdentificacion;
+    private Vuelo vuelo;
+    private String clase;
+    private String asiento;
+    private String horaSalida;
+
+    public Reserva(String nombre, String nacionalidad, int edad, String numeroIdentificacion,
+            Vuelo vuelo, String clase, String asiento, String horaSalida) {
+        this.nombre = nombre;
+        this.nacionalidad = nacionalidad;
+        this.edad = edad;
+        this.numeroIdentificacion = numeroIdentificacion;
+        this.vuelo = vuelo;
+        this.clase = clase;
+        this.asiento = asiento;
+        this.horaSalida = horaSalida;
+    }
+
+    public String getNumeroIdentificacion() {
+        return numeroIdentificacion;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setNacionalidad(String nacionalidad) {
+        this.nacionalidad = nacionalidad;
+    }
+
+    public void setEdad(int edad) {
+        this.edad = edad;
+    }
+
+    public void setClase(String clase) {
+        this.clase = clase;
+    }
+
+    public void setHoraSalida(String horaSalida) {
+        this.horaSalida = horaSalida;
+    }
+
+    public String toString() {
+        return "Nombre: " + nombre + ", Nacionalidad: " + nacionalidad + ", Edad: " + edad +
+                ", Número de identificación: " + numeroIdentificacion + ", Vuelo: " + vuelo +
+                ", Clase: " + clase + ", Asiento: " + asiento + ", Hora de salida: " + horaSalida;
+    }
+}
