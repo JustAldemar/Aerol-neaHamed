@@ -31,4 +31,4 @@ El programa funciona desde consola mediante un **menú interactivo**.
 
 1. Clona este repositorio:
    ```bash
-   git clone https://github.com/TU-USUARIO/AeropuertoHamed1.git
+   git clone https://github.com/JustAldemar/AeropuertoHamed1.git
